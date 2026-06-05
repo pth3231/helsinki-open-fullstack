@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useState } from 'react'
+import { useEffect, useState } from 'react';
 
 const anecdotes = [
     'If it hurts, do it more often.',
