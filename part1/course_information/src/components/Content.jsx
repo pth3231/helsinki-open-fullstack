@@ -2,12 +2,16 @@ import Part from "./Part";
 import { useEffect } from "react";
 
 const Content = (props) => {
+
+    const { lesson } = props;
+
     useEffect(() => {
         console.log("Content props: ", props);
     }, []);
 
-    return props.lesson.map((value) => {
-        return <Part key={value.key} part={value.part} exercises={value.exercises}></Part>
+    return lesson.map((value) => {
+        const {key, part, exercises } = value;
+        return <Part key={key} part={part} exercises={exercises}></Part>
     })
 }
 
