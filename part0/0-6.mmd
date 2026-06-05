@@ -1,0 +1,17 @@
+---
+config:
+  theme: dark
+---
+sequenceDiagram
+    participant spa
+    participant server
+
+    Note right of spa: Initial page loading as usual, awaiting for user to post new notes
+
+    spa->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+    Note left of server: Process the JSON request {"content":..., "date":...}
+
+    server-->>spa: 201 Created
+    Note right of spa: Print to the console {"message":"note created"}. Directly re-render <div, id notes> without refreshing the whole page 
+    

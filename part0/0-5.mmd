@@ -1,0 +1,23 @@
+---
+config:
+  theme: dark
+---
+sequenceDiagram
+    participant spa
+    participant server
+
+    spa->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa
+    server-->>spa: HTML document
+
+    spa->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    server-->>spa: the css file
+
+    spa->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+    server-->>spa: the JavaScript file
+
+    Note right of spa: The spa starts executing the JavaScript code that fetches the JSON from the server
+
+    spa->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    server-->>spa: [{ "content": "test", "date": "2026-06-04T14:31:52.521Z" }, ... ]
+
+    Note right of spa: The spa.js handles the rendering of the notes
