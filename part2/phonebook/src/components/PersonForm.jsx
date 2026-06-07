@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createNewPerson, updateExistingPerson } from '../services/db';
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, setNotiStatus }) => {
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
 
@@ -16,23 +16,39 @@ const PersonForm = ({ persons, setPersons }) => {
         if (updateConfirmation) {
             updateExistingPerson(id, person)
                 .then(response => {
-                    console.log("updated: ", response);
+                    console.log("updated: ", response.data);
                     // Update the persons state with the updated person
                     const updatedPersons = persons.map(p => 
-                        p.id === id ? response : p
+                        p.id === id ? response.data : p
                     );
                     setPersons(updatedPersons);
-                    // Clear the form
-                    setNewName('');
-                    setNewNumber('');
+                    setNotiStatus({
+                        display: true,
+                        type: "info",
+                        content: `Updated all user named ${person.name}`
+                    });
                 })
                 .catch(err => {
                     console.error(err);
+                    setNotiStatus({
+                        display: true,
+                        type: "error",
+                        content: "Error occurred! This name might have been deleted!"
+                    });
                 })
         } else {
             console.log("Existed and user don't want to update, aborted!");
+            setNotiStatus({
+                display: true,
+                type: "info",
+                content: "User existed, but did not change anything! Aborted!"
+            });
             return;
         }
+
+        // Clear the form
+        setNewName('');
+        setNewNumber('');
     }
 
     const addNewPersonFunc = () => {
@@ -43,16 +59,27 @@ const PersonForm = ({ persons, setPersons }) => {
 
         createNewPerson(person)
             .then(response => {
-                console.log("Creating new person: ", response);
-                const tempPersons = [...persons, response];
+                console.log("Creating new person: ", response.data);
+                const tempPersons = [...persons, response.data];
                 setPersons(tempPersons);
-                // Clear the form
-                setNewName('');
-                setNewNumber('');
+                setNotiStatus({
+                    display: true,
+                    type: "info",
+                    content: `Added ${person.name}!`
+                });
             })
             .catch(err => {
-                console.error(err)
+                console.error(err);
+                setNotiStatus({
+                    display: true,
+                    type: "error",
+                    content: "Unexpected error occurred!"
+                });
             });
+
+        // Clear the form
+        setNewName('');
+        setNewNumber('');
     }
 
     const checkInvalidInput

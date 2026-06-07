@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import PersonsDisplayItem from "./PersonsDisplayItem";
 
-const PersonsDisplay = ({ persons, setPersons, filterString }) => {
+const PersonsDisplay = ({ persons, setPersons, filterString, setNotiStatus }) => {
     // Add safety checks to prevent accessing properties of undefined
     const filtered_persons = (persons || []).filter(
         (person) => person && person.name && 
@@ -15,14 +15,13 @@ const PersonsDisplay = ({ persons, setPersons, filterString }) => {
     return <div>
         <h2>Numbers</h2>
         {
-            filtered_persons.map(({ id, name, number }) =>
+            filtered_persons.map((person) =>
                 <PersonsDisplayItem 
-                    key={id} 
-                    id={id}
-                    name={name} 
-                    number={number} 
+                    key={person.id} 
+                    person={person}
                     persons={persons}
-                    setPersons={setPersons} />
+                    setPersons={setPersons}
+                    setNotiStatus={setNotiStatus} />
             )
         }
     </div>
