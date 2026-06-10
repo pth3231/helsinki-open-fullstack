@@ -6,6 +6,7 @@
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .noti-info {
@@ -16,4 +17,10 @@
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.noti-hidden {
+    opacity: 0;
+    visibility: hidden;
 }

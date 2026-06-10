@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import PersonsDisplayItem from "./PersonsDisplayItem";
 
-const PersonsDisplay = ({ persons, setPersons, filterString, setNotiStatus }) => {
+const PersonsDisplay = ({ persons, setPersons, filterString, showNotification, setNotiStatus }) => {
     // Add safety checks to prevent accessing properties of undefined
     const filtered_persons = (persons || []).filter(
         (person) => person && person.name && 
@@ -9,7 +9,7 @@ const PersonsDisplay = ({ persons, setPersons, filterString, setNotiStatus }) =>
     )
 
     useEffect(() => {
-        console.log("Received props for displaying: ", { persons, filterString, filtered_persons });
+        console.log("Received props for displaying: ", { persons, filterString });
     }, [persons, filterString])
 
     return <div>
@@ -21,6 +21,7 @@ const PersonsDisplay = ({ persons, setPersons, filterString, setNotiStatus }) =>
                     person={person}
                     persons={persons}
                     setPersons={setPersons}
+                    showNotification={showNotification}
                     setNotiStatus={setNotiStatus} />
             )
         }

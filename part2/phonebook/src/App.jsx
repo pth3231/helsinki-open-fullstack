@@ -5,16 +5,12 @@ import PersonForm from './components/PersonForm';
 import PersonsDisplay from './components/PersonsDisplay';
 import Filter from './components/Filter';
 import Notification from './components/Notification';
-
+import useNotification from './hooks/useNotification';
 
 const App = () => {
     const [persons, setPersons] = useState([]);
     const [filterString, setFilterString] = useState("");
-    const [notiStatus, setNotiStatus] = useState({
-        display: false,
-        type: "info",
-        content: ""
-    });
+    const { notiStatus, showNotification, setNotiStatus } = useNotification();
 
     useEffect(() => {
         getAllPersons()
@@ -38,12 +34,13 @@ const App = () => {
             <PersonForm
                 persons={persons}
                 setPersons={setPersons}
-                notiStatus={notiStatus}
+                showNotification={showNotification}
                 setNotiStatus={setNotiStatus} />
             <PersonsDisplay
                 persons={persons}
                 setPersons={setPersons}
                 filterString={filterString}
+                showNotification={showNotification}
                 setNotiStatus={setNotiStatus} />
         </div>
     )

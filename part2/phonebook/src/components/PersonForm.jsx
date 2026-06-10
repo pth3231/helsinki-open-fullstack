@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createNewPerson, updateExistingPerson } from '../services/db';
 
-const PersonForm = ({ persons, setPersons, setNotiStatus }) => {
+const PersonForm = ({ persons, setPersons, showNotification }) => {
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
 
@@ -22,27 +22,15 @@ const PersonForm = ({ persons, setPersons, setNotiStatus }) => {
                         p.id === id ? response.data : p
                     );
                     setPersons(updatedPersons);
-                    setNotiStatus({
-                        display: true,
-                        type: "info",
-                        content: `Updated all user named ${person.name}`
-                    });
+                    showNotification("info", `Updated all user named ${person.name}`);
                 })
                 .catch(err => {
                     console.error(err);
-                    setNotiStatus({
-                        display: true,
-                        type: "error",
-                        content: "Error occurred! This name might have been deleted!"
-                    });
+                    showNotification("error", "Error occurred! This name might have been deleted!");
                 })
         } else {
             console.log("Existed and user don't want to update, aborted!");
-            setNotiStatus({
-                display: true,
-                type: "info",
-                content: "User existed, but did not change anything! Aborted!"
-            });
+            showNotification("info", "User existed, but did not change anything! Aborted!");
             return;
         }
 
@@ -62,19 +50,11 @@ const PersonForm = ({ persons, setPersons, setNotiStatus }) => {
                 console.log("Creating new person: ", response.data);
                 const tempPersons = [...persons, response.data];
                 setPersons(tempPersons);
-                setNotiStatus({
-                    display: true,
-                    type: "info",
-                    content: `Added ${person.name}!`
-                });
+                showNotification("info", `Added ${person.name}!`);
             })
             .catch(err => {
                 console.error(err);
-                setNotiStatus({
-                    display: true,
-                    type: "error",
-                    content: "Unexpected error occurred!"
-                });
+                showNotification("error", "Unexpected error occurred!");
             });
 
         // Clear the form
@@ -105,7 +85,7 @@ const PersonForm = ({ persons, setPersons, setNotiStatus }) => {
     const formSubmitHandler = (e) => {
         e.preventDefault();
         if (checkInvalidInput()) {
-            alert("Bro, invalid input!");
+            showNotification("error", "Bro, invalid input!", 3000);
             return;
         }
 
