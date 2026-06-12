@@ -1,0 +1,23 @@
+GET http://localhost:3001/api
+###
+GET http://localhost:3001/api/persons
+###
+GET http://localhost:3001/info
+###
+GET http://localhost:3001/api/persons/4
+###
+GET http://localhost:3001/api/persons/5
+###
+GET http://localhost:3001/api/persons/1014805609670
+
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "David Nguyen",
+    "number": "0987-2212-3321"
+}
+
+###
+DELETE http://localhost:3001/api/persons/4
