@@ -6,7 +6,7 @@ const PersonsDisplay = ({ persons, setPersons, filterString, showNotification })
     // Add safety checks to prevent accessing properties of undefined
     const filtered_persons = (persons || []).filter(
         (person) => person && person.name && 
-        (person.name.toLowerCase().includes(filterString) || filterString === undefined || filterString === "")
+        (person.name.toLowerCase().includes(filterString.toLowerCase()) || filterString === undefined || filterString === "")
     )
 
     const deleteItemHandler = ({id, name}) => {
