@@ -3,12 +3,18 @@
 // Imports and definitions
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 let { persons } = require("./data.js");
 
 const app = express();
 const PORT = 3001;
 
 // Middlewares
+app.use(express.static('frontend/dist'));
+app.use(cors({
+    origin: ["http://localhost:5173"],
+    optionsSuccessStatus: 200
+}));
 app.use(express.json());
 
 morgan.token('req-body', (req) => { 
@@ -57,6 +63,27 @@ app.delete("/api/persons/:id", (req, res) => {
     return res.status(200).json({ error: "none" });
 });
 
+app.put("/api/persons/:id", (req, res) => {
+    const id = req.params.id;
+    const person = req.body;
+
+    if (!id)
+        return res.status(400).json({ error: "id sent is invalid" });
+    if (!person)
+        return res.status(400).json({ error: "body sent is invalid" });
+    // Check id exist?
+
+    const matchedPerson = persons.find((person) => person.id == id);
+    if (!matchedPerson)
+        return res.status(404).json({error: "this user may be deleted"});
+
+    const updatedPersons = persons.map(p => 
+        p.id === id ? person : p
+    );
+    persons = updatedPersons;
+    return res.status(200).json({ error: "none" });
+})
+
 app.post("/api/persons", (req, res) => {
     const { name, number } = req.body;
     if (!req.body)
@@ -73,7 +100,7 @@ app.post("/api/persons", (req, res) => {
     };
 
     persons.push(newPerson);
-    return res.status(201).json({ error: "none" });
+    return res.status(201).json({ error: "none", id: newPerson.id });
 });
 
 app.get("/info", (req, res) => {
