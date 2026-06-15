@@ -2,11 +2,12 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "mongoose": "^9.7.0",
     "morgan": "^1.11.0"
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js",
+    "dev": "node --watch --inspect server.js",
     "build": "npm i && cd frontend && npm i && npm run build && cd ..",
     "test": "echo No test && exit 1"
   }

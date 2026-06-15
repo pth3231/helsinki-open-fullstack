@@ -4,10 +4,13 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const { loadEnvFile } = require('node:process');
+
 let { persons } = require("./data.js");
 
 const app = express();
 const PORT = 3001;
+loadEnvFile();
 
 // Middlewares
 app.use(express.static('frontend/dist'));
