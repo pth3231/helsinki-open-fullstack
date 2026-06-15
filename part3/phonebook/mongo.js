@@ -18,28 +18,41 @@ const personSchema = mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema);
 
-if (process.argv.length < 4) {
-    console.log('give a personName');
-    process.exit(1);
+function createNewPerson(name, number) {
+    const newPerson = new Person({
+        name: name,
+        number: number
+    });
+
+    newPerson.save()
+        .then(res => {
+            console.log('a new person has been added!', newPerson);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        .finally(() => mongoose.connection.close());
 }
-const personName = process.argv[3];
+
+function findAllPerson() {
+    Person.find({})
+        .then(persons => {
+            console.log("phonebook:");
+            for (const p of persons) {
+                console.log(p.name, p.number);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        .finally(() => mongoose.connection.close());
+}
 
 if (process.argv.length < 5) {
-    console.log('give a personNumber');
-    process.exit(1);
+    findAllPerson();
 }
-const personNumber = process.argv[4];
-
-const newPerson = new Person({
-    name: personName,
-    number: personNumber
-});
-
-newPerson.save()
-    .then(res => {
-        console.log('a new person has been added!', newPerson);
-    })
-    .catch(err => {
-        console.log(err);
-    })
-    .finally(() => mongoose.connection.close())
+else {
+    const personName = process.argv[3];
+    const personNumber = process.argv[4];
+    createNewPerson(personName, personNumber);
+}
