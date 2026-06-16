@@ -5,12 +5,10 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const { loadEnvFile } = require('node:process');
-
-let { persons } = require("./data.js");
+loadEnvFile();
 
 const app = express();
-const PORT = 3001;
-loadEnvFile();
+const PORT = process.env.PORT;
 
 // Middlewares
 app.use(express.static('frontend/dist'));
@@ -20,7 +18,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-morgan.token('req-body', (req) => { 
+morgan.token('req-body', (req) => {
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
         return JSON.stringify(req.body);
     }
@@ -29,44 +27,54 @@ morgan.token('req-body', (req) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
+const PersonService = require('./services/persons.service');
+
 // Endpoints
 app.get("/api", (req, res) => {
     res.send("This is phonebook API!");
 });
 
-app.get("/api/persons", (req, res) => {
-    return res.status(200).json({
-        persons
-    });
+app.get("/api/persons", async (req, res) => {
+    try {
+        const persons = await PersonService.findAll();
+        console.log(persons);
+        return res.json({persons});
+    } catch(err) {
+        console.log(err);
+        return res.status(400).json({err})
+    }
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!id)
+            return res.status(400).json({ error: "id sent is invalid" });
+        const matchedPerson = await PersonService.findById(id);
+        if (!matchedPerson)
+            throw Error("User not exist");
+        return res.json(matchedPerson);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({});
+    }
+});
+
+app.delete("/api/persons/:id", async (req, res) => {
     const id = req.params.id;
     if (!id)
         return res.status(400).json({ error: "id sent is invalid" });
-
-    const matchedPerson = persons.find((person) => person.id == id);
-    if (!matchedPerson)
-        res.status(404);
-    else
-        res.status(200);
-
-    return res.json(matchedPerson);
+    try {
+        const result = await PersonService.delete(id);
+        if (!result)
+            throw Error("User may not exist");
+        return res.json({ error: "none" });
+    } catch (err) {
+        return res.status(404).json({ error: "id not existed" });
+    }
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-    const id = req.params.id;
-    if (!id)
-        return res.status(400).json({ error: "id sent is invalid" });
-
-    const deletedPersons = persons.filter((p) => p.id != id);
-    if (deletedPersons.length == persons.length)
-        return res.status(400).json({ error: "id not existed" });
-    persons = deletedPersons;
-    return res.status(200).json({ error: "none" });
-});
-
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", async (req, res) => {
     const id = req.params.id;
     const person = req.body;
 
@@ -74,45 +82,46 @@ app.put("/api/persons/:id", (req, res) => {
         return res.status(400).json({ error: "id sent is invalid" });
     if (!person)
         return res.status(400).json({ error: "body sent is invalid" });
-    // Check id exist?
 
-    const matchedPerson = persons.find((person) => person.id == id);
-    if (!matchedPerson)
-        return res.status(404).json({error: "this user may be deleted"});
-
-    const updatedPersons = persons.map(p => 
-        p.id === id ? person : p
-    );
-    persons = updatedPersons;
-    return res.status(200).json({ error: "none" });
+    try {
+        const updatePersonResult = await PersonService.updatePerson(id, person.number);
+        if (!updatePersonResult)
+            throw Error("Error occurred during updating");
+        return res.json(updatePersonResult);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({error: "Cannot update"});
+    }
 })
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
     const { name, number } = req.body;
     if (!req.body)
         return res.status(400).json({ error: "missing body" });
-
-    const matchedPersonByName = persons.find((person) => person.name == name);
-    if (matchedPersonByName)
-        return res.status(400).json({ error: "existed" });
-
-    const newPerson = {
-        name,
-        number,
-        id: String(Math.floor(Math.random() * 10e12))
-    };
-
-    persons.push(newPerson);
-    return res.status(201).json({ error: "none", id: newPerson.id });
+    try {
+        const createdPerson = await PersonService.create(name, number);
+        res.status(201).json({
+            error: null,
+            createdPerson
+        });
+    } catch (err) {
+        if (err.code === 11000)
+            return res.status(409).json({ error: "User existed" })
+        res.status(400).json({ error: "Unknown error" });
+    }
 });
 
-app.get("/info", (req, res) => {
-    const personsNumber = persons.length;
-    const currentDate = (new Date()).toUTCString();
+app.get("/info", async (req, res) => {
+    try {
+        const personsNumber = await PersonService.countAllPersons();
+        const currentDate = (new Date()).toUTCString();
 
-    console.info(`/info: number of persons available ${personsNumber}`);
+        console.info(`/info: number of persons available ${personsNumber}`);
 
-    res.send(`<p>Phonebook has info for ${personsNumber} people</p>\n<p>${currentDate}</p>`);
+        res.send(`<p>Phonebook has info for ${personsNumber} people</p>\n<p>${currentDate}</p>`);
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // Initialization
